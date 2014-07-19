@@ -6,7 +6,6 @@ import random
 import datetime
 from node import Node
 from node import length
-from node import add_neighbours
 from node import total_length
 from node import dump
 import matplotlib.pyplot as plt
@@ -225,7 +224,7 @@ def create_animation( nodes ):
 
     s = best_solution
     for i in range(60):
-        frame0(s,solution, total_length(nodes,s), "(4)  SA")
+        frame0(s, solution, total_length(nodes,s), "(4)  SA")
 
 
     return best_solution
