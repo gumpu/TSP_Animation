@@ -235,11 +235,12 @@ def create_animation( nodes ):
             # but also the more times it takes.
             t = t*0.9995
 
-            # See if the found a better solution
+            # See if current solution is a better solution then the previous
+            # best one.
             if l_min is None: # TODO: This can be removed, as l_min is set above.
                 l_min = l
             elif l < l_min:
-                # Yup, remember it.
+                # Yup it is, remember it.
                 l_min = l
                 print "++", l, t
                 best_solution = solution[:]
