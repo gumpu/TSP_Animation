@@ -49,32 +49,32 @@ def frame0( solution, all, l, title ):
     pic += 1
 
 nn = 0
-def frame( nodes, solution, sn, t, c,y,x,z, gain ):
+def frame(nodes, solution, sn, t, c, y, x, z, gain):
     global pic
     global nn
 
-    cities = [ (n.x,n.y) for n in solution ]
-    cities = numpy.array( cities )
+    cities = [(n.x,n.y) for n in solution]
+    cities = numpy.array(cities)
 
-    cities2 = [ (c.x,c.y), (y.x,y.y) ]
-    cities3 = [ (x.x,x.y), (z.x,z.y) ]
-    cities2 = numpy.array( cities2 )
-    cities3 = numpy.array( cities3 )
+    cities2 = [(c.x,c.y), (y.x,y.y)]
+    cities3 = [(x.x,x.y), (z.x,z.y)]
+    cities2 = numpy.array(cities2)
+    cities3 = numpy.array(cities3)
 
     plt.plot(cities[:,0],cities[:,1],'bo-')
     #plt.scatter(cities[:,0], cities[:,1],s=50,c='k')
 
     if gain < 0:
-        plt.scatter(cities2[:,0], cities2[:,1],c='r',s=180)
-        plt.plot(cities2[:,0],cities2[:,1],c='r',linewidth=2)
+        plt.scatter(cities2[:,0], cities2[:,1], c='r',s=180)
+        plt.plot(cities2[:,0],cities2[:,1], c='r',linewidth=2)
         plt.scatter(cities3[:,0], cities3[:,1],c='b',s=150)
-        plt.plot(cities3[:,0],cities3[:,1],c='r',linewidth=2)
+        plt.plot(cities3[:,0],cities3[:,1], c='r',linewidth=2)
 
     else:
-        plt.scatter(cities2[:,0], cities2[:,1],c='g',s=180)
-        plt.plot(cities2[:,0],cities2[:,1],c='g',linewidth=2)
-        plt.scatter(cities3[:,0], cities3[:,1],c='b',s=150)
-        plt.plot(cities3[:,0],cities3[:,1],c='g',linewidth=2)
+        plt.scatter(cities2[:,0], cities2[:,1], c='g',s=180)
+        plt.plot(cities2[:,0], cities2[:,1], c='g',linewidth=2)
+        plt.scatter(cities3[:,0], cities3[:,1], c='b',s=150)
+        plt.plot(cities3[:,0], cities3[:,1], c='g',linewidth=2)
 
     plt.axis( [-100,4100,-100,2100] )
     plt.axis('off')
@@ -85,7 +85,8 @@ def frame( nodes, solution, sn, t, c,y,x,z, gain ):
     pic += 1
     print pic
 
-def frame4( nodes, solution, sn, t, c,y,x,z, gain ):
+
+def frame4(nodes, solution, sn, c, y, x, z, gain):
     global pic
     global nn
 
@@ -124,139 +125,6 @@ def frame4( nodes, solution, sn, t, c,y,x,z, gain ):
 
 
 
-#-----------------------------------------------------------------------------
-def create_animation( nodes ):
-    global nn
-    global l_min
-    sn = len( nodes )
-    print 'Size {}'.format( sn )
-
-    if True:
-        # Greedy Algorithm
-        print 'Computing greedy path'
-
-        free_nodes = nodes[:]
-        solution = []
-        n = free_nodes[0]
-        free_nodes.remove(n)
-        solution.append( n )
-        while len( free_nodes ) > 0:
-            print len( free_nodes ),
-            min_l = None
-            min_n = None
-            for c in free_nodes:
-                l = length( c, n )
-                if min_l is None:
-                    min_l = l
-                    min_n = c
-                elif l < min_l:
-                    min_l = l
-                    min_n = c
-            solution.append(min_n)
-            free_nodes.remove(min_n)
-            n = min_n
-    else:
-        solution = [ n for n in nodes ]
-
-    if True:
-        # Only cities
-        solution0 = [ n for n in nodes ]
-        for i in range(2,sn):
-            s = solution0[0:i]
-            framec(s,sn)
-        # Show all cities for an additional 20 frames.
-        for i in range(20):
-            framec(s,sn)
-
-        # Random Search
-        for i in range(2,sn):
-            s = solution0[0:i]
-            frame0(s,solution0, total_length(nodes,s), "(1)  Random Path")
-        s = solution0
-        for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(1)  Random Path")
-
-        # Greedy
-        for i in range(2,sn):
-            s = solution[0:i]
-            frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
-        s = solution
-        for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
-
-
-    print "2-Opt"
-    # Create an initial solution
-    solution = [ n for n in nodes ]
-    t = 100
-    go = True
-    # Try to optimize the solution with 2opt until
-    # no further optimization is possible.
-    while go:
-        (go,solution) = optimize2opt( nodes, solution, sn, t )
-    s = solution
-    for i in range(60):
-        frame0(s,solution, total_length(nodes,s), "(3)  2-Opt")
-
-
-    #=== Simulated Annealing 
-    print "SA"
-    # Create an initial solution that we can improve upon.
-    solution = [ n for n in nodes ]
-
-    # The temperature t. This is the most important parameter
-    # of the SA algorithm. It starts at a high temperature and
-    # is then slowly decreased.   Both rate of decrease and
-    # initial values are parameters that need to be tuned to
-    # get a good solution.
-
-    # The initial temperature.
-    # This should be high enough to allow the algorithm to
-    # explore many sections of the search space.
-    # Set too high it will waste a lot of computation time randomly
-    # bouncing around the search space.
-    t = 100
-
-    # Length of the best solution so far.
-    l_min = total_length( nodes, solution )
-    best_solution = []
-    i = 0
-    while True:
-        i = i + 1
-        solution = optimize( nodes, solution, sn, t )
-        # every ~200 steps
-        if i >= 200:
-            i = 0
-            # Compute the length of the solution
-            l = total_length( nodes, solution )
-            print "    ", l, t, nn
-            # Lower the temperature.
-            # The slower we do this, the better then final solution
-            # but also the more times it takes.
-            t = t*0.9995
-
-            # See if current solution is a better solution then the previous
-            # best one.
-            if l_min is None: # TODO: This can be removed, as l_min is set above.
-                l_min = l
-            elif l < l_min:
-                # Yup it is, remember it.
-                l_min = l
-                print "++", l, t
-                best_solution = solution[:]
-            else:
-                pass
-        if t < 0.1: # TODO: This should be part of the while condition.
-            break
-
-    # Show the best solution for an additional 60 frames.
-    s = best_solution
-    for i in range(60):
-        frame0(s, solution, total_length(nodes,s), "(4)  SA")
-
-
-    return best_solution
-
 #
 #    Before 2opt             After 2opt
 #       Y   Z                    Y   Z
@@ -284,14 +152,14 @@ def create_animation( nodes ):
 # combination that gave the best gain.
 #
 
-def optimize2opt(nodes, solution, sn, t):
+def optimize2opt(nodes, solution, number_of_nodes):
     best = 0
     best_move = None
     # For all combinations of the nodes
-    for ci in range(0, sn):
-        for xi in range(0, sn):
-            yi = (ci + 1) % sn  # C is the node before Y
-            zi = (xi + 1) % sn  # Z is the node after X
+    for ci in range(0, number_of_nodes):
+        for xi in range(0, number_of_nodes):
+            yi = (ci + 1) % number_of_nodes  # C is the node before Y
+            zi = (xi + 1) % number_of_nodes  # Z is the node after X
 
             c = solution[ ci ]
             y = solution[ yi ]
@@ -323,7 +191,7 @@ def optimize2opt(nodes, solution, sn, t):
         z = solution[ zi ]
 
         # Create an empty solution
-        new_solution = range(0,sn)
+        new_solution = range(0,number_of_nodes)
         # In the new solution C is the first node.
         # This we we only need two copy loops instead of three.
         new_solution[0] = solution[ci]
@@ -334,7 +202,7 @@ def optimize2opt(nodes, solution, sn, t):
         while xi != yi:
             new_solution[n] = solution[xi]
             n = n + 1
-            xi = (xi-1)%sn
+            xi = (xi-1)%number_of_nodes
         new_solution[n] = solution[yi]
 
         n = n + 1
@@ -342,9 +210,9 @@ def optimize2opt(nodes, solution, sn, t):
         while zi != ci:
             new_solution[n] = solution[zi]
             n = n + 1
-            zi = (zi+1)%sn
+            zi = (zi+1)%number_of_nodes
         # Create a new animation frame
-        frame4( nodes, new_solution, sn, t, c,y,x,z, gain )
+        frame4(nodes, new_solution, number_of_nodes, c, y, x, z, gain)
         return (True,new_solution)
     else:
         return (False,solution)
@@ -359,19 +227,19 @@ def optimize2opt(nodes, solution, sn, t):
 #
 # (1) Instead of only doing an edge swap if it reduces the length, it
 # sometimes (depending on chance) also does a swap that INCREASES the length.
-# How often this happens depends on the temperature t and the gain.  
-# For high temperatures this happens often and large negative gains are accepted, 
+# How often this happens depends on the temperature t and the gain.
+# For high temperatures this happens often and large negative gains are accepted,
 # but the lower the temperature the less often it happens and only small
 # negative gains are accepted.
 #
 
-def optimize( nodes, solution, sn, t ):
+def sa_optimize_step(nodes, solution, number_of_nodes, t):
     global nn
     # Pick X and Y at random.
-    ci = random.randint(0, sn-1)
-    yi = (ci + 1) % sn
-    xi = random.randint(0, sn-1)
-    zi = (xi + 1) % sn
+    ci = random.randint(0, number_of_nodes-1)
+    yi = (ci + 1) % number_of_nodes
+    xi = random.randint(0, number_of_nodes-1)
+    zi = (xi + 1) % number_of_nodes
 
     if xi != ci and xi != yi:
         c = solution[ci]
@@ -385,9 +253,9 @@ def optimize( nodes, solution, sn, t ):
 
         gain = (cy + xz) - (cx + yz)
         if gain < 0:
-            # For a negative gain we only except
-            # it depending on the magnitude in combination
-            # with the temperature.
+            # We only accept a negative gain conditionally
+            # The probability is based on the magnitude of the gain
+            # and the temperature.
             u = math.exp( gain / t )
         elif gain > 0.05:
             u = 1 # always except a good gain.
@@ -399,27 +267,184 @@ def optimize( nodes, solution, sn, t ):
             nn = nn + 1
             #print "      ", gain
             # Make a new solution with both edges swapped.
-            new_solution = range(0,sn)
+            new_solution = range(0,number_of_nodes)
             new_solution[0] = solution[ci]
             n = 1
             while xi != yi:
                 new_solution[n] = solution[xi]
                 n = n + 1
-                xi = (xi-1)%sn
+                xi = (xi-1)%number_of_nodes
             new_solution[n] = solution[yi]
             n = n + 1
             while zi != ci:
                 new_solution[n] = solution[zi]
                 n = n + 1
-                zi = (zi+1)%sn
+                zi = (zi+1)%number_of_nodes
 
-            frame( nodes, new_solution, sn, t, c,y,x,z, gain )
+            # Create an animation frame for this step
+            frame(nodes, new_solution, number_of_nodes, t, c, y, x, z, gain)
 
             return new_solution
         else:
             return solution
     else:
         return solution
+
+
+#----------------------------------------------------------------------------
+def greedy_algorithm(nodes):
+    # Greedy Algorithm
+    print 'Computing greedy path'
+
+    free_nodes = nodes[:]
+    solution = []
+    n = free_nodes[0]
+    free_nodes.remove(n)
+    solution.append( n )
+    while len(free_nodes) > 0:
+        print(len(free_nodes))
+        min_l = None
+        min_n = None
+        for c in free_nodes:
+            l = length( c, n )
+            if min_l is None:
+                min_l = l
+                min_n = c
+            elif l < min_l:
+                min_l = l
+                min_n = c
+        solution.append(min_n)
+        free_nodes.remove(min_n)
+        n = min_n
+    return solution
+
+#-----------------------------------------------------------------------------
+def two_opt_algorithm(nodes, number_of_nodes):
+    # Create an initial solution
+    solution = [n for n in nodes]
+    go = True
+    # Try to optimize the solution with 2opt until
+    # no further optimization is possible.
+    while go:
+        (go,solution) = optimize2opt(nodes, solution, number_of_nodes)
+    return solution
+
+#-----------------------------------------------------------------------------
+def sa_algorithm(nodes, number_of_nodes):
+    # Create an initial solution that we can improve upon.
+    solution = [n for n in nodes]
+
+    # The temperature t. This is the most important parameter of the SA
+    # algorithm. It starts at a high temperature and is then slowly decreased.
+    # Both rate of decrease and initial values are parameters that need to be
+    # tuned to get a good solution.
+
+    # The initial temperature.  This should be high enough to allow the
+    # algorithm to explore many sections of the search space.  Set too high it
+    # will waste a lot of computation time randomly bouncing around the search
+    # space.
+    t = 100
+
+    # Length of the best solution so far.
+    l_min = total_length( nodes, solution )
+    best_solution = []
+    i = 0
+    while t > 0.1:
+        i = i + 1
+        # Given a solution we create a new solution
+        solution = sa_optimize_step(nodes, solution, number_of_nodes, t)
+        # every ~200 steps
+        if i >= 200:
+            i = 0
+            # Compute the length of the solution
+            l = total_length( nodes, solution )
+            print "    ", l, t, nn
+            # Lower the temperature.
+            # The slower we do this, the better then final solution
+            # but also the more times it takes.
+            t = t*0.9995
+
+            # See if current solution is a better solution then the previous
+            # best one.
+            if l_min is None: # TODO: This can be removed, as l_min is set above.
+                l_min = l
+            elif l < l_min:
+                # Yup it is, remember it.
+                l_min = l
+                print "++", l, t
+                best_solution = solution[:]
+            else:
+                pass
+
+    return best_solution
+
+#-----------------------------------------------------------------------------
+do_greedy = False
+do_intro  = False
+do_2opt   = True
+do_sa     = False
+
+def create_animation(nodes):
+    global nn
+    global l_min
+    number_of_nodes = len( nodes )
+    print('Size {}'.format( number_of_nodes ))
+
+    if do_greedy:
+        # Greedy Algorithm
+        print 'Computing greedy path'
+        solution = greedy_algorithm(nodes)
+    else:
+        # For debugging
+        solution = [n for n in nodes] 
+
+    if do_intro:
+        # Only cities
+        solution0 = [n for n in nodes]
+        for i in range(2, number_of_nodes):
+            s = solution0[0:i]
+            framec(s, number_of_nodes)
+        # Show all cities for an additional 20 frames.
+        for i in range(20):
+            framec(s, number_of_nodes)
+
+        # Animate the Random Search
+        for i in range(2,number_of_nodes):
+            s = solution0[0:i]
+            frame0(s,solution0, total_length(nodes,s), "(1)  Random Path")
+        s = solution0
+        for i in range(60):
+            frame0(s,solution, total_length(nodes,s), "(1)  Random Path")
+
+        # Animate the Greedy Search
+        for i in range(2,number_of_nodes):
+            s = solution[0:i]
+            frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
+        s = solution
+        for i in range(60):
+            frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
+
+
+    if do_2opt:
+        print("2-Opt")
+        # Run 2-Opt algorithm and create animation frames for each step
+        s = two_opt_algorithm(nodes, number_of_nodes)
+        # Show the best solution for an additional 60 frames.
+        for i in range(60):
+            frame0(s,solution, total_length(nodes,s), "(3)  2-Opt")
+
+
+    if do_sa:
+        #=== Simulated Annealing 
+        print("SA")
+        # Run SA algorithm and create animation frames for each step
+        s = sa_algorithm(nodes, number_of_nodes)
+        # Show the best solution for an additional 60 frames.
+        for i in range(60):
+            frame0(s, solution, total_length(nodes,s), "(4)  SA")
+
+
+    return s
 
 
 def solve(problem_file_name):
