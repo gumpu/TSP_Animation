@@ -422,32 +422,32 @@ def optimize( nodes, solution, sn, t ):
         return solution
 
 
-def solve( input_data ):
-    # This it to make sure we get the same anwser each time.
+def solve(problem_file_name):
+    # This it to make sure we get the same answer each time.
     random.seed(8111142)
+    solution_string = None
 
-    lines = input_data.split('\n')
-    node_count = int(lines[0])
-    nodes = []
+    with open(problem_file_name) as inpf:
+        first_line = inpf.readline()
+        node_count = int(first_line)
+        nodes = []
 
-    for i in range(1, node_count+1):
-        line = lines[i]
-        parts = line.split()
-        nodes.append( Node( i-1, float(parts[0]), float(parts[1]) ) )
+        i = 0
+        for line in inpf:
+            parts = line.split()
+            nodes.append(Node(i, float(parts[0]), float(parts[1])))
+            i = i + 1
 
-    solution = create_animation( nodes )
+        solution = create_animation(nodes)
 
-    objective = total_length( nodes, solution )
-    solution_string = str( objective ) + ' 0\n'
-    solution_string += ' '.join( map( lambda x: str(x.id), solution ) )
+        objective = total_length(nodes, solution)
+        solution_string = str(objective) + ' 0\n'
+        solution_string += ' '.join(map(lambda x: str(x.id), solution))
+
     return solution_string
 
 
 if __name__ == '__main__':
-    fileLocation = 'problem3.dat'
-    input_data_file = open(fileLocation, 'r')
-    input_data = ''.join(input_data_file.readlines())
-    input_data_file.close()
-    print solve( input_data )
+    print solve('problem3.dat')
 
 # vi: spell
