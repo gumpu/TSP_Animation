@@ -125,6 +125,7 @@ def frame4(nodes, solution, sn, c, y, x, z, gain):
 
 
 
+#-----------------------------------------------------------------------------
 #
 #    Before 2opt             After 2opt
 #       Y   Z                    Y   Z
@@ -218,6 +219,7 @@ def optimize2opt(nodes, solution, number_of_nodes):
         return (False,solution)
 
 
+#-----------------------------------------------------------------------------
 # This is an SA optimization step.
 # It uses the same principle as the optimize2opt with the following
 # differences:
@@ -381,8 +383,8 @@ def sa_algorithm(nodes, number_of_nodes):
 #-----------------------------------------------------------------------------
 do_greedy = False
 do_intro  = False
-do_2opt   = True
-do_sa     = False
+do_2opt   = False
+do_sa     = True
 
 def create_animation(nodes):
     global nn
@@ -446,28 +448,32 @@ def create_animation(nodes):
 
     return s
 
-
-def solve(problem_file_name):
-    # This it to make sure we get the same answer each time.
-    random.seed(8111142)
-    solution_string = None
-
+#-----------------------------------------------------------------------------
+def read_problem(problem_file_name):
+    nodes = []
     with open(problem_file_name) as inpf:
         first_line = inpf.readline()
         node_count = int(first_line)
-        nodes = []
-
         i = 0
         for line in inpf:
             parts = line.split()
             nodes.append(Node(i, float(parts[0]), float(parts[1])))
             i = i + 1
 
-        solution = create_animation(nodes)
+    return nodes
 
-        objective = total_length(nodes, solution)
-        solution_string = str(objective) + ' 0\n'
-        solution_string += ' '.join(map(lambda x: str(x.id), solution))
+#-----------------------------------------------------------------------------
+def solve(problem_file_name):
+    # This it to make sure we get the same answer each time.
+    random.seed(8111142)
+    solution_string = None
+    nodes = read_problem(problem_file_name)
+
+    solution = create_animation(nodes)
+
+    objective = total_length(nodes, solution)
+    solution_string = str(objective) + ' 0\n'
+    solution_string += ' '.join(map(lambda x: str(x.id), solution))
 
     return solution_string
 
