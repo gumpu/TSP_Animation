@@ -380,10 +380,41 @@ def sa_algorithm(nodes, number_of_nodes):
 
     return best_solution
 
+def miss_perry_s_compass(nodes, number_of_nodes):
+    # Compute Center of all nodes
+    sum_x = 0
+    sum_y = 0
+    for n in nodes:
+        sum_x += n.x
+        sum_y += n.y
+    c_x = sum_x / number_of_nodes
+    c_y = sum_y / number_of_nodes
+    # Make a node for this center.
+    center_node = Node(-1, c_x, c_y)
+    sorted_nodes = []
+    done = [False] * number_of_nodes
+
+    for i in range(number_of_nodes):
+        max_l = -1
+        furthest = None
+        for j in range(number_of_nodes):
+            if done[j]:
+                pass
+            else:
+                l = length(center_node, nodes[j])
+                if l > max_l:
+                    furthest = j
+                    max_l = l
+        sorted_nodes.append(nodes[furthest])
+        done[furthest] = True
+
+    return sorted_nodes
+
 #-----------------------------------------------------------------------------
-do_greedy = False
-do_intro  = False
-do_2opt   = False
+do_greedy = True
+do_intro  = True
+do_perry  = False
+do_2opt   = True
 do_sa     = True
 
 def create_animation(nodes):
@@ -426,6 +457,11 @@ def create_animation(nodes):
         for i in range(60):
             frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
 
+    # Under construction
+    if do_perry:
+        s = miss_perry_s_compass(nodes, number_of_nodes)
+        for i in range(60):
+            frame0(s,solution, total_length(nodes,s), "(3)  Miss Perry")
 
     if do_2opt:
         print("2-Opt")
@@ -433,7 +469,7 @@ def create_animation(nodes):
         s = two_opt_algorithm(nodes, number_of_nodes)
         # Show the best solution for an additional 60 frames.
         for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(3)  2-Opt")
+            frame0(s,solution, total_length(nodes,s), "(4)  2-Opt")
 
 
     if do_sa:
@@ -443,7 +479,7 @@ def create_animation(nodes):
         s = sa_algorithm(nodes, number_of_nodes)
         # Show the best solution for an additional 60 frames.
         for i in range(60):
-            frame0(s, solution, total_length(nodes,s), "(4)  SA")
+            frame0(s, solution, total_length(nodes,s), "(5)  SA")
 
 
     return s
