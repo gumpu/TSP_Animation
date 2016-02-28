@@ -24,24 +24,24 @@ def framec( solution, nc ):
     plt.axis( [-100,4100,-100,2100] )
     plt.axis('off')
     plt.plot(cities[:,0],cities[:,1],'ko')
-    plt.title('{} Cities, 4 Search Algorithms'.format(nc))
+    plt.title('{} Cities, 5 Search Algorithms'.format(nc))
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
     print pic
     pic += 1
 
-def frame0( solution, all, l, title ):
+def frame0(solution, nodes, l, title):
     global pic
-    cities = [ (n.x,n.y) for n in solution ]
-    cities.append( ( solution[0].x, solution[0].y ) )
+    cities = [(n.x,n.y) for n in solution]
+    cities.append(( solution[0].x, solution[0].y ))
     cities = numpy.array( cities )
-    all = [ (n.x,n.y) for n in all ]
-    all = numpy.array( all )
+    all_node = [(n.x,n.y) for n in nodes]
+    all_nodes = numpy.array(all_node)
 
-    plt.axis( [-100,4100,-100,2100] )
+    plt.axis([-100, 4100, -100, 2100])
     plt.axis('off')
-    plt.plot(cities[:,0],cities[:,1],'bo-')
-    plt.plot(all[:,0],all[:,1],'ko')
+    plt.plot(cities[:,0], cities[:,1], 'bo-')
+    plt.plot(all_nodes[:,0], all_nodes[:,1], 'ko')
     plt.title('{}  Tour length {:.1f}'.format(title,l))
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
@@ -380,6 +380,40 @@ def sa_algorithm(nodes, number_of_nodes):
 
     return best_solution
 
+
+# From: http://stackoverflow.com/questions/16625507/python-checking-if-point-is-inside-a-polygon
+# (Patrick Jordan)
+# Modified to work with nodes.
+def point_in_poly(x, y, poly):
+    n = len(poly)
+    inside = False
+
+    p1x = poly[0].x
+    p1y = poly[0].y
+    for i in range(n+1):
+        p2x = poly[i % n].x
+        p2y = poly[i % n].y
+        if y > min(p1y,p2y):
+            if y <= max(p1y,p2y):
+                if x <= max(p1x,p2x):
+                    if p1y != p2y:
+                        xints = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+                    if p1x == p2x or x <= xints:
+                        inside = not inside
+        p1x,p1y = p2x,p2y
+
+    return inside
+
+def area_triangle(n1, n2, n3):
+    # Area of triangle via Heron's Formula
+    # <https://en.wikipedia.org/wiki/Heron%27s_formula>
+    a = length(n1, n2)
+    b = length(n2, n3)
+    c = length(n3, n1)
+    p = (a + b + c)/2.0
+    area = math.sqrt(p*(p-a)*(p-b)*(p-c))
+    return area
+
 def miss_perry_s_compass(nodes, number_of_nodes):
     # Compute Center of all nodes
     sum_x = 0
@@ -394,6 +428,7 @@ def miss_perry_s_compass(nodes, number_of_nodes):
     sorted_nodes = []
     done = [False] * number_of_nodes
 
+    # Sort the nodes based on the distance from the center node.
     for i in range(number_of_nodes):
         max_l = -1
         furthest = None
@@ -408,14 +443,53 @@ def miss_perry_s_compass(nodes, number_of_nodes):
         sorted_nodes.append(nodes[furthest])
         done[furthest] = True
 
+    # Create initial polygon
+    solution = [sorted_nodes[0], sorted_nodes[1], sorted_nodes[2]]
+    for i in range(3, number_of_nodes):
+        new_node = sorted_nodes[i]
+        closest = sorted_nodes[0]
+        min_l = length(closest, new_node)
+        index_in_list = 0
+        for j in range(1, i):
+            l = length(sorted_nodes[j], new_node)
+            if l < min_l:
+                index_in_list = j
+                closest = sorted_nodes[j]
+                min_l = l
+
+        # Is the node inside or outside the polygon?
+        if point_in_poly(new_node.x, new_node.y, solution):
+            idx_before = (index_in_list - 1) % i
+            idx_after  = (index_in_list + 1) % i
+            # it is Inside
+            area1 = area_triangle(new_node, closest, solution[idx_before])
+            area2 = area_triangle(new_node, closest, solution[idx_after])
+            if area1 < area2:
+                # Insert new node between closest and next
+            else:
+                # Insert 
+            pass
+        else:
+            # it is outside
+            pass
+
     return sorted_nodes
 
 #-----------------------------------------------------------------------------
-do_greedy = True
-do_intro  = True
-do_perry  = False
-do_2opt   = True
-do_sa     = True
+if False:
+    # Experiment with Perry Algorithm
+    do_greedy = False
+    do_intro  = False
+    do_perry  = True
+    do_2opt   = False
+    do_sa     = False
+else:
+    # Production
+    do_greedy = True
+    do_intro  = True
+    do_perry  = False
+    do_2opt   = True
+    do_sa     = True
 
 def create_animation(nodes):
     global nn
@@ -442,26 +516,29 @@ def create_animation(nodes):
             framec(s, number_of_nodes)
 
         # Animate the Random Search
-        for i in range(2,number_of_nodes):
+        for i in range(2, number_of_nodes):
             s = solution0[0:i]
-            frame0(s,solution0, total_length(nodes,s), "(1)  Random Path")
+            frame0(s, nodes, total_length(nodes, s), "(1)  Random Path")
         s = solution0
         for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(1)  Random Path")
+            frame0(s, nodes, total_length(nodes, s), "(1)  Random Path")
 
         # Animate the Greedy Search
-        for i in range(2,number_of_nodes):
+        for i in range(2, number_of_nodes):
             s = solution[0:i]
-            frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
+            frame0(s, nodes, total_length(nodes, s), "(2)  Greedy Search")
         s = solution
         for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(2)  Greedy Search")
+            frame0(s, nodes, total_length(nodes, s), "(2)  Greedy Search")
 
     # Under construction
     if do_perry:
-        s = miss_perry_s_compass(nodes, number_of_nodes)
+        solution = miss_perry_s_compass(nodes, number_of_nodes)
+        for i in range(2, number_of_nodes):
+            s = solution[0:i]
+            frame0(s, nodes, total_length(nodes, s), "(1)  Random Path")
         for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(3)  Miss Perry")
+            frame0(solution, nodes, total_length(nodes, s), "(3)  Miss Perry")
 
     if do_2opt:
         print("2-Opt")
@@ -469,8 +546,7 @@ def create_animation(nodes):
         s = two_opt_algorithm(nodes, number_of_nodes)
         # Show the best solution for an additional 60 frames.
         for i in range(60):
-            frame0(s,solution, total_length(nodes,s), "(4)  2-Opt")
-
+            frame0(s, nodes, total_length(nodes, s), "(4)  2-Opt")
 
     if do_sa:
         #=== Simulated Annealing 
@@ -479,8 +555,7 @@ def create_animation(nodes):
         s = sa_algorithm(nodes, number_of_nodes)
         # Show the best solution for an additional 60 frames.
         for i in range(60):
-            frame0(s, solution, total_length(nodes,s), "(5)  SA")
-
+            frame0(s, nodes, total_length(nodes, s), "(5)  SA")
 
     return s
 
@@ -517,4 +592,3 @@ def solve(problem_file_name):
 if __name__ == '__main__':
     print solve('problem3.dat')
 
-# vi: spell
