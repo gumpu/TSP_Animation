@@ -15,7 +15,7 @@ import numpy
 
 l_min = None
 pic = 0
-v = [-100,4100,-100,2100]
+# v = [-100,4100,-100,2100]
 
 def framec( solution, nc ):
     global pic
@@ -466,8 +466,10 @@ def miss_perry_s_compass(nodes, number_of_nodes):
             area2 = area_triangle(new_node, closest, solution[idx_after])
             if area1 < area2:
                 # Insert new node between closest and next
+                pass
             else:
                 # Insert 
+                pass
             pass
         else:
             # it is outside
