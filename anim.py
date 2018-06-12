@@ -79,7 +79,7 @@ def frame(nodes, solution, sn, t, c, y, x, z, gain):
     plt.axis( [-100,4100,-100,2100] )
     plt.axis('off')
 
-    plt.title('(4)  SA Temp {:4.1f} Best Tour {:6.1f}\nSwaps {}  Gain {:12.2f} '.format(t,l_min,nn,gain))
+    plt.title('(4)  SA Temp {} Best Tour {}\nSwaps {}  Gain {} '.format(t, l_min, nn, gain))
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
     pic += 1
