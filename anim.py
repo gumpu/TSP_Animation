@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-# This only runs under Python2 
+# This only runs under Python2
 
 import math
 import time
@@ -79,7 +79,12 @@ def frame(nodes, solution, sn, t, c, y, x, z, gain):
     plt.axis( [-100,4100,-100,2100] )
     plt.axis('off')
 
-    plt.title('(4)  SA Temp {:4.1f} Best Tour {:6.1f}\nSwaps {}  Gain {:12.2f} '.format(t,l_min,nn,gain))
+    # In first few frames there might not be an l_min yet
+    if l_min is None:
+        plt.title('(4)  SA Temp {:4.1f} Best Tour ---\nSwaps {}  Gain {:12.2f} '.format(t, l_min, nn, gain))
+    else:
+        plt.title('(4)  SA Temp {:4.1f} Best Tour {:6.1f}\nSwaps {}  Gain {:12.2f} '.format(t, l_min, nn, gain))
+
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
     pic += 1
@@ -468,7 +473,7 @@ def miss_perry_s_compass(nodes, number_of_nodes):
                 # Insert new node between closest and next
                 pass
             else:
-                # Insert 
+                # Insert
                 pass
             pass
         else:
@@ -505,7 +510,7 @@ def create_animation(nodes):
         solution = greedy_algorithm(nodes)
     else:
         # For debugging
-        solution = [n for n in nodes] 
+        solution = [n for n in nodes]
 
     if do_intro:
         # Only cities
@@ -551,7 +556,7 @@ def create_animation(nodes):
             frame0(s, nodes, total_length(nodes, s), "(4)  2-Opt")
 
     if do_sa:
-        #=== Simulated Annealing 
+        #=== Simulated Annealing
         print("SA")
         # Run SA algorithm and create animation frames for each step
         s = sa_algorithm(nodes, number_of_nodes)
