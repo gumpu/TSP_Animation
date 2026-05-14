@@ -27,7 +27,7 @@ def framec( solution, nc ):
     plt.title('{} Cities, 5 Search Algorithms'.format(nc))
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
-    print pic
+    print(pic)
     pic += 1
 
 def frame0(solution, nodes, l, title):
@@ -45,7 +45,7 @@ def frame0(solution, nodes, l, title):
     plt.title('{}  Tour length {:.1f}'.format(title,l))
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
-    print pic
+    print(pic)
     pic += 1
 
 nn = 0
@@ -88,7 +88,7 @@ def frame(nodes, solution, sn, t, c, y, x, z, gain):
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
     pic += 1
-    print pic
+    print(pic)
 
 
 def frame4(nodes, solution, sn, c, y, x, z, gain):
@@ -126,7 +126,7 @@ def frame4(nodes, solution, sn, c, y, x, z, gain):
     plt.savefig( ("%05d" % pic)+'.png')
     plt.clf()
     pic += 1
-    print pic
+    print(pic)
 
 
 
@@ -187,7 +187,7 @@ def optimize2opt(nodes, solution, number_of_nodes):
                     best_move = (ci,yi,xi,zi)
                     best = gain
 
-    print best_move, best
+    print((best_move, best))
     if best_move is not None:
         (ci,yi,xi,zi) = best_move
         # This four are needed for the animation later on.
@@ -197,9 +197,9 @@ def optimize2opt(nodes, solution, number_of_nodes):
         z = solution[ zi ]
 
         # Create an empty solution
-        new_solution = range(0,number_of_nodes)
+        new_solution = [0] * number_of_nodes
         # In the new solution C is the first node.
-        # This we we only need two copy loops instead of three.
+        # This way we only need two copy loops instead of three.
         new_solution[0] = solution[ci]
 
         n = 1
@@ -274,7 +274,7 @@ def sa_optimize_step(nodes, solution, number_of_nodes, t):
             nn = nn + 1
             #print "      ", gain
             # Make a new solution with both edges swapped.
-            new_solution = range(0,number_of_nodes)
+            new_solution = [0]*number_of_nodes
             new_solution[0] = solution[ci]
             n = 1
             while xi != yi:
@@ -301,7 +301,7 @@ def sa_optimize_step(nodes, solution, number_of_nodes, t):
 #----------------------------------------------------------------------------
 def greedy_algorithm(nodes):
     # Greedy Algorithm
-    print 'Computing greedy path'
+    print('Computing greedy path')
 
     free_nodes = nodes[:]
     solution = []
@@ -365,7 +365,7 @@ def sa_algorithm(nodes, number_of_nodes):
             i = 0
             # Compute the length of the solution
             l = total_length( nodes, solution )
-            print "    ", l, t, nn
+            print("    ", l, t, nn)
             # Lower the temperature.
             # The slower we do this, the better then final solution
             # but also the more times it takes.
@@ -378,7 +378,7 @@ def sa_algorithm(nodes, number_of_nodes):
             elif l < l_min:
                 # Yup it is, remember it.
                 l_min = l
-                print "++", l, t
+                print("++", l, t)
                 best_solution = solution[:]
             else:
                 pass
@@ -506,7 +506,7 @@ def create_animation(nodes):
 
     if do_greedy:
         # Greedy Algorithm
-        print 'Computing greedy path'
+        print('Computing greedy path')
         solution = greedy_algorithm(nodes)
     else:
         # For debugging
@@ -597,5 +597,5 @@ def solve(problem_file_name):
 
 
 if __name__ == '__main__':
-    print solve('problem3.dat')
+    print(solve('problem3.dat'))
 
